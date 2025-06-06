@@ -11,28 +11,38 @@ class SinglyLinkedListGraphTest {
 
     @Test
     void test() {
+
         try {
             SinglyLinkedListGraph graph = new SinglyLinkedListGraph();
-            for (char i = 'a'; i <= 'e'; i++) {
+            for (char i = 'A'; i <= 'J'; i++) {
                 graph.addVertex(i);
             }
-            graph.addEdgeWeight('a', 'b', util.Utility.random(20)+2);
-            graph.addEdgeWeight('a', 'c', util.Utility.random(20)+2);
-            graph.addEdgeWeight('a', 'd', util.Utility.random(20)+2);
-            graph.addEdgeWeight('b', 'e', util.Utility.random(20)+2);
-            graph.addEdgeWeight('c', 'd', util.Utility.random(20)+2);
-            graph.addEdgeWeight('c', 'e', util.Utility.random(20)+2);
+            graph.addEdgeWeight('A', 'B', "Juan");
+            graph.addEdgeWeight('A', 'C', "Pedro");
+            graph.addEdgeWeight('A', 'D', "Maria");
+            graph.addEdgeWeight('B', 'F', "Jose");
+            graph.addEdgeWeight('E', 'F', "Ana");
+            graph.addEdgeWeight('F', 'J', "Luis");
+            graph.addEdgeWeight('C', 'G', "Carlos");
+            graph.addEdgeWeight('G', 'J',  "Elena");
+            graph.addEdgeWeight('D', 'H', "Sofia");
+            graph.addEdgeWeight('I', 'H', "Andres");
+            graph.addEdgeWeight('H', 'J', "Laura");
+
 
             System.out.println(graph);  //toString
             System.out.println("DFS Transversal Tour: "+graph.dfs());
             System.out.println("BFS Transversal Tour: "+graph.bfs());
 
             //eliminemos vertices
-            System.out.println("\nVertex deleted: a");
-            graph.removeVertex('a');
-            System.out.println(graph);  //toString
-            System.out.println("Edge deleted: e---b");
-            graph.removeEdge('e', 'b');
+            System.out.println("\nVertex deleted: F");
+            graph.removeVertex('F');
+            System.out.println("\nVertex deleted: H");
+            graph.removeVertex('H');
+            System.out.println("\nVertex deleted: J");
+            graph.removeVertex('J');
+            System.out.println("DFS Transversal Tour: "+graph.dfs());
+            System.out.println("BFS Transversal Tour: "+graph.bfs());
             System.out.println(graph);  //toString
 
         } catch (GraphException | ListException | StackException | QueueException e) {

@@ -13,30 +13,80 @@ class AdjacencyListGraphTest {
     void test() {
         try {
             AdjacencyListGraph graph = new AdjacencyListGraph(50);
-            for (char i = 'a'; i <= 'e'; i++) {
-                graph.addVertex(i);
+            for (int i = 0; i < 30; i++) {
+                graph.addVertex(util.Utility.random(40)+1);  // Adding random vertices from 1 to 40
             }
-            graph.addEdgeWeight('a', 'b', util.Utility.random(20)+2);
-            graph.addEdgeWeight('a', 'c', util.Utility.random(20)+2);
-            graph.addEdgeWeight('a', 'd', util.Utility.random(20)+2);
-            graph.addEdgeWeight('b', 'e', util.Utility.random(20)+2);
-            graph.addEdgeWeight('c', 'd', util.Utility.random(20)+2);
-            graph.addEdgeWeight('c', 'e', util.Utility.random(20)+2);
 
+            System.out.println(graph);  //toString
+
+
+
+           graph.connectEvenAndOddVertices();
+            System.out.println("\n\n\nGraph after connecting even and odd vertices:");
+            System.out.println(graph);  //toString
+            connectRandomEvenOddVertices(graph);
+            System.out.println("\n\n\nGraph after connecting random even and odd vertices:");
             System.out.println(graph);  //toString
             System.out.println("DFS Transversal Tour: "+graph.dfs());
             System.out.println("BFS Transversal Tour: "+graph.bfs());
-
-            //eliminemos vertices
-            System.out.println("\nVertex deleted: a");
-            graph.removeVertex('a');
-            System.out.println(graph);  //toString
-            System.out.println("Edge deleted: e---b");
-            graph.removeEdge('e', 'b');
+            int deleted = 5; // Number of vertices to delete
+            for (int i = 0; i <deleted ;) {
+                int g= util.Utility.random(40)+1;
+                if(graph.containsVertex(g)) {
+                    System.out.println("\nVertex deleted: " + g);
+                    graph.removeVertex(g);
+                    i++;
+                }
+            }
             System.out.println(graph);  //toString
 
         } catch (GraphException | ListException | StackException | QueueException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void connectRandomEvenOddVertices(AdjacencyListGraph graph) throws GraphException, ListException {
+        int counter = graph.size();
+        int[] even = new int[counter];
+        int[] odd = new int[counter];
+        int evenCount = 0;
+        int oddCount = 0;
+
+        for (int i = 0; i < counter; i++) {
+            int value = Integer.parseInt(graph.vertexList[i].data.toString());
+            if (value % 2 == 0) {
+                even[evenCount++] = value;
+            } else {
+                odd[oddCount++] = value;
+            }
+        }
+
+        if (evenCount < 10 || oddCount < 10)
+            throw new GraphException("Not enough even or odd vertices (need at least 10 of each)");
+
+        int[] selectedEven = selectRandomSubset(even, evenCount, 10);
+        int[] selectedOdd = selectRandomSubset(odd, oddCount, 10);
+
+
+        for (int i = 0; i < 10; i++) {
+            int weight = util.Utility.random(40) + 1;
+            graph.addEdgeWeight(selectedEven[i], selectedOdd[i], weight);
+        }
+    }
+
+    private int[] selectRandomSubset(int[] source, int size, int subsetSize) {
+
+        boolean[] used = new boolean[size];
+        int[] result = new int[subsetSize];
+        int count = 0;
+
+        while (count < subsetSize) {
+            int index =util.Utility.random(size);
+            if (!used[index]) {
+                used[index] = true;
+                result[count++] = source[index];
+            }
+        }
+        return result;
     }
 }

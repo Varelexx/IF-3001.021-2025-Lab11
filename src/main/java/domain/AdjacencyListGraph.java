@@ -7,7 +7,7 @@ import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
 public class AdjacencyListGraph implements Graph {
-    private Vertex[] vertexList; //arreglo de objetos tupo vértice
+    public Vertex[] vertexList; //arreglo de objetos tupo vértice
     private int n; //max de elementos
     private int counter; //contador de vertices
 
@@ -213,11 +213,16 @@ public class AdjacencyListGraph implements Graph {
     private int adjacentVertexNotVisited(int index) throws ListException {
         Object vertexData = vertexList[index].data;
         for (int i = 0; i < counter; i++) {
-            if(!vertexList[index].edgesList.isEmpty()
-                    && vertexList[i].edgesList.contains(new EdgeWeight(vertexData, null))
-                    && !vertexList[i].isVisited())
-                    return i;//retorna la posicion del vertice adyacente no visitado
-        }//for i
+            // Verificar primero si la lista de aristas está vacía
+            if (vertexList[i].edgesList.isEmpty()) {
+                continue; // Saltar si está vacía
+            }
+            // Luego verificar si contiene el vértice y si no ha sido visitado
+            if (vertexList[i].edgesList.contains(new EdgeWeight(vertexData, null))
+                    && !vertexList[i].isVisited()) {
+                return i;
+            }
+        }
         return -1;
     }
 
@@ -231,5 +236,40 @@ public class AdjacencyListGraph implements Graph {
                 result+="\n......EDGES AND WEIGHTS: "+vertexList[i].edgesList.toString();
         }
         return result;
+
+    }
+
+    public void connectEvenAndOddVertices() throws GraphException, ListException {
+        if (isEmpty())
+            throw new GraphException("Adjacency List Graph is Empty");
+
+
+        // Conectar todos los pares entre sí
+        for (int i = 0; i < counter; i++) {
+            int dataI = Integer.parseInt(vertexList[i].data.toString());
+            if (dataI % 2 == 0) {
+                for (int j = i + 1; j < counter; j++) {
+                    int dataJ = Integer.parseInt(vertexList[j].data.toString());
+                    if (dataJ % 2 == 0) {
+                        int weight = util.Utility.random(40)+1; // entre 1 y 40
+                        addEdgeWeight(dataI, dataJ, weight);
+                    }
+                }
+            }
+        }
+
+        // Conectar todos los impares entre sí
+        for (int i = 0; i < counter; i++) {
+            int dataI = Integer.parseInt(vertexList[i].data.toString());
+            if (dataI % 2 != 0) {
+                for (int j = i + 1; j < counter; j++) {
+                    int dataJ = Integer.parseInt(vertexList[j].data.toString());
+                    if (dataJ % 2 != 0) {
+                        int weight = util.Utility.random(40)+1; // entre 1 y 40
+                        addEdgeWeight(dataI, dataJ, weight);
+                    }
+                }
+            }
+        }
     }
 }
