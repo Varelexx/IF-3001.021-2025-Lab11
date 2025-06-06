@@ -226,6 +226,17 @@ public class SinglyLinkedListGraph implements Graph {
         return -1;
     }
 
+    public Vertex getVertexByIndex(int i) throws ListException {
+        return (Vertex) vertexList.getNode(i).data;
+    }
+
+    public Object getWeightEdges(Object a, Object b) throws ListException {
+        Vertex vertex = (Vertex) vertexList.getNode(new Vertex(a)).data;
+        Object result = vertex.edgesList.getNode(new EdgeWeight(b, null)).data;
+
+        return result;
+    }
+
     @Override
     public String toString() {
         String result = "Singly Linked List Graph Content...";

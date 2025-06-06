@@ -43,7 +43,7 @@ public class AdjacencyListGraph implements Graph {
 
     @Override
     public boolean containsVertex(Object element) throws GraphException, ListException {
-        if(isEmpty())
+        if (isEmpty())
             throw new GraphException("Adjacency List Graph is Empty");
         //opcion-1
        /* for (int i = 0; i < counter; i++) {
@@ -51,13 +51,13 @@ public class AdjacencyListGraph implements Graph {
                 return true;
         }*/
         //opcion-2
-        return indexOf(element)!=-1;
+        return indexOf(element) != -1;
         //return false;
     }
 
     @Override
     public boolean containsEdge(Object a, Object b) throws GraphException, ListException {
-        if(isEmpty())
+        if (isEmpty())
             throw new GraphException("Adjacency List Graph is Empty");
         return !vertexList[indexOf(a)].edgesList.isEmpty()
                 && vertexList[indexOf(a)].edgesList.contains(new EdgeWeight(b, null));
@@ -65,24 +65,24 @@ public class AdjacencyListGraph implements Graph {
 
     @Override
     public void addVertex(Object element) throws GraphException, ListException {
-        if(counter>=vertexList.length)
+        if (counter >= vertexList.length)
             throw new GraphException("Adjacency List Graph is Full");
         vertexList[counter++] = new Vertex(element);
     }
 
     @Override
     public void addEdge(Object a, Object b) throws GraphException, ListException {
-        if(!containsVertex(a)||!containsVertex(b))
-            throw new GraphException("Cannot add edge between vertexes ["+a+"] y ["+b+"]");
-       vertexList[indexOf(a)].edgesList.add(new EdgeWeight(b, null));
-       //grafo no dirigido
+        if (!containsVertex(a) || !containsVertex(b))
+            throw new GraphException("Cannot add edge between vertexes [" + a + "] y [" + b + "]");
+        vertexList[indexOf(a)].edgesList.add(new EdgeWeight(b, null));
+        //grafo no dirigido
         vertexList[indexOf(b)].edgesList.add(new EdgeWeight(a, null));
 
     }
 
-    private int indexOf(Object element){
+    private int indexOf(Object element) {
         for (int i = 0; i < counter; i++) {
-            if(util.Utility.compare(vertexList[i].data, element)==0)
+            if (util.Utility.compare(vertexList[i].data, element) == 0)
                 return i; //retorna la pos en el arreglo de objectos vertexList
         }
         return -1; //significa q la data de todos los vertices no coinciden con element
@@ -90,8 +90,8 @@ public class AdjacencyListGraph implements Graph {
 
     @Override
     public void addWeight(Object a, Object b, Object weight) throws GraphException, ListException {
-        if(!containsEdge(a, b))
-            throw new GraphException("There is no edge between the vertexes["+a+"] y ["+b+"]");
+        if (!containsEdge(a, b))
+            throw new GraphException("There is no edge between the vertexes[" + a + "] y [" + b + "]");
         updateEdgesListEdgeWeight(a, b, weight);
         //GRAFO NO DIRIGIDO
         updateEdgesListEdgeWeight(b, a, weight);
@@ -109,9 +109,9 @@ public class AdjacencyListGraph implements Graph {
 
     @Override
     public void addEdgeWeight(Object a, Object b, Object weight) throws GraphException, ListException {
-        if(!containsVertex(a)||!containsVertex(b))
-            throw new GraphException("Cannot add edge between vertexes ["+a+"] y ["+b+"]");
-        if(!containsEdge(a, b)){ //si no existe la arista
+        if (!containsVertex(a) || !containsVertex(b))
+            throw new GraphException("Cannot add edge between vertexes [" + a + "] y [" + b + "]");
+        if (!containsEdge(a, b)) { //si no existe la arista
             vertexList[indexOf(a)].edgesList.add(new EdgeWeight(b, weight));
             //grafo no dirigido
             vertexList[indexOf(b)].edgesList.add(new EdgeWeight(a, weight));
@@ -120,22 +120,22 @@ public class AdjacencyListGraph implements Graph {
 
     @Override
     public void removeVertex(Object element) throws GraphException, ListException {
-        if(isEmpty())
+        if (isEmpty())
             throw new GraphException("Adjacency List Graph is Empty");
-        if(containsVertex(element)){
+        if (containsVertex(element)) {
             for (int i = 0; i < counter; i++) {
-                if(util.Utility.compare(vertexList[i].data, element)==0) {
+                if (util.Utility.compare(vertexList[i].data, element) == 0) {
                     //ya lo encontro, ahora
                     //se debe suprimir el vertice a eliminar de todas las listas
                     //enlazadas de los otros vértices
                     for (int j = 0; j < counter; j++) {
-                        if(containsEdge(vertexList[j].data, element))
+                        if (containsEdge(vertexList[j].data, element))
                             removeEdge(vertexList[j].data, element);
                     }
 
                     //ahora, debemos suprimir el vértice
-                    for (int j = i; j < counter-1; j++) {
-                        vertexList[j] = vertexList[j+1];
+                    for (int j = i; j < counter - 1; j++) {
+                        vertexList[j] = vertexList[j + 1];
                     }
                     counter--; //decrementamos el contador de vértices
                 }
@@ -145,13 +145,13 @@ public class AdjacencyListGraph implements Graph {
 
     @Override
     public void removeEdge(Object a, Object b) throws GraphException, ListException {
-        if(!containsVertex(a)||!containsVertex(b))
+        if (!containsVertex(a) || !containsVertex(b))
             throw new GraphException("There's no some of the vertexes");
-        if(!vertexList[indexOf(a)].edgesList.isEmpty()) {
+        if (!vertexList[indexOf(a)].edgesList.isEmpty()) {
             vertexList[indexOf(a)].edgesList.remove(new EdgeWeight(b, null));
         }
         //grafo no dirigido
-        if(!vertexList[indexOf(b)].edgesList.isEmpty()){
+        if (!vertexList[indexOf(b)].edgesList.isEmpty()) {
             vertexList[indexOf(b)].edgesList.remove(new EdgeWeight(a, null));
         }
     }
@@ -224,6 +224,14 @@ public class AdjacencyListGraph implements Graph {
             }
         }
         return -1;
+    }
+
+    public Vertex getVertexByIndex(int i){
+        return vertexList[i];
+    }
+    public Object getWeightEdges(Object a, Object b) throws ListException {
+        EdgeWeight ed = (EdgeWeight) vertexList[indexOf(a)].edgesList.getNode(new EdgeWeight(b, null)).data;
+        return ed.getWeight();
     }
 
     @Override
