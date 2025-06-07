@@ -130,6 +130,9 @@ public class SinglyLinkedListGraphController {
                 throw new RuntimeException(e);
             } catch (ListException e) {
                 throw new RuntimeException(e);
+            } catch (RuntimeException e) {
+                alert.setContentText("Please put this format 'A'-'B'");
+                alert.showAndWait();
             }
         });
     }

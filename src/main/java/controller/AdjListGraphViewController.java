@@ -121,8 +121,9 @@ public class AdjListGraphViewController {
                     alert.setContentText("The elements [" + elements[0] + ", " + elements[1] + "] don't have an edge");
                     alert.showAndWait();
                 }
-            } catch (GraphException | ListException e) {
-                throw new RuntimeException(e);
+            } catch (GraphException | ListException | RuntimeException e) {
+                    alert.setContentText("Please put this format 'A'-'B'");
+                    alert.showAndWait();
             }
         });
     }
