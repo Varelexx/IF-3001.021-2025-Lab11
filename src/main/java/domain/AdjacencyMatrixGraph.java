@@ -240,7 +240,7 @@ public class AdjacencyMatrixGraph implements Graph {
                     result+="\nThere is edge between the vertexes: "+vertexList[i].data+"...."
                             +vertexList[j].data;
                     //si existe peso que lo muestre
-                    if(util.Utility.compare(adjacencyMatrix[i][j], 1)!=0){
+                    if(util.Utility.compare(adjacencyMatrix[i][j], 0)!=0){
                         //si matriz[fila][col] !=1 existe un peso agregado
                         result+="_____WEIGHT: "+adjacencyMatrix[i][j];
                     }
