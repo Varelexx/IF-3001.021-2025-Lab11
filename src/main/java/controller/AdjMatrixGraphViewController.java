@@ -13,143 +13,160 @@ import javafx.scene.layout.Pane;
 import util.FXUtility;
 import util.Utility;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class AdjMatrixGraphViewController {
     @javafx.fxml.FXML
     private Pane paneGraph;
     @javafx.fxml.FXML
     private TextArea ta_toString;
-
-    private AdjacencyMatrixGraph graph;
+    private ArrayList<Integer> vertices; // 10 números aleatorios
+    AdjacencyMatrixGraph graph;
     private Alert alert;
     private TextInputDialog dialog;
+    AdjMatrixGraphVisualization visualization;
 
-    @javafx.fxml.FXML
-    public void initialize() {
-        alert = FXUtility.alert("Adjacency Matrix Graph", null);
-        dialog = FXUtility.dialog("Adjacency Matrix Graph", null);
-        randomizeGraph();
+    public void initialize() throws GraphException, ListException {
+        graph = new AdjacencyMatrixGraph(10); // 10 vértices
+        setGraph();
+        generateEdges();
+        displayGraph();
+        alert = FXUtility.alert("AdjMatrixGraph", null);
+        dialog = FXUtility.dialog("AdjMatrixGraph", null);
     }
 
-    private void randomizeGraph() {
-        try {
-            graph = new AdjacencyMatrixGraph(10);
-            Set<Integer> uniqueVertices = new HashSet<>();
-            while (uniqueVertices.size() < 10) {
-                uniqueVertices.add(Utility.random(100));
+    // Genera 10 números aleatorios entre 0 y 99, sin repetidos, y los añade como vértices
+    private void setGraph() throws GraphException, ListException {
+        vertices = new ArrayList<>();
+        ArrayList<Integer> pool = new ArrayList<>();
+        for (int i = 0; i < 100; i++) pool.add(i); // pool de [0,99]
+        Collections.shuffle(pool);
+        for (int i = 0; i < 10; i++) {
+            int number = pool.get(i);
+            vertices.add(number);
+            graph.addVertex(number);
+        }
+    }
+
+    private void displayGraph() throws ListException, GraphException {
+        paneGraph.getChildren().clear();
+        visualization = new AdjMatrixGraphVisualization(graph);
+        visualization.displayGraph();
+        paneGraph.getChildren().add(visualization);
+    }
+
+    // Genera hasta 15 aristas entre los vértices, con pesos entre 1 y 50, sin bucles ni aristas duplicadas
+    private void generateEdges() throws GraphException, ListException {
+        int countEdges = 0;
+        int n = vertices.size();
+        while (countEdges < 15){
+            int idxA = Utility.random(n) - 1;
+            int idxB = Utility.random(n) - 1;
+            Object a = vertices.get(idxA);
+            Object b = vertices.get(idxB);
+
+            if (!a.equals(b) && !graph.containsEdge(a, b)){
+                int weight = Utility.random(50); // [1, 50]
+                if (weight == 0) weight = 1;
+                graph.addEdgeWeight(a, b, weight);
+                countEdges++;
             }
-            for (Integer vertex : uniqueVertices) {
-                graph.addVertex(vertex);
-            }
-            Integer[] vertices = uniqueVertices.toArray(new Integer[0]);
-            for (int i = 0; i < 15; i++) {
-                int indexA = Utility.random(10);
-                int indexB = Utility.random(10);
-                if (indexA != indexB) {
-                    int weight = Utility.random(50) + 1;
-                    graph.addEdgeWeight(vertices[indexA], vertices[indexB], weight);
-                }
-            }
-            ta_toString.setVisible(false);
-        } catch (GraphException | ListException e) {
-            alert.setContentText("Error al generar el grafo: " + e.getMessage());
-            alert.showAndWait();
         }
     }
 
     @javafx.fxml.FXML
     public void toStringOnAction(ActionEvent actionEvent) {
-        try {
-            ta_toString.setText(graph.toString());
-            ta_toString.setVisible(true);
-        } catch (Exception e) {
-            alert.setContentText("Error al mostrar el grafo: " + e.getMessage());
-            alert.showAndWait();
-        }
+        ta_toString.setText(graph.toString());
+        ta_toString.setVisible(true);
     }
 
     @javafx.fxml.FXML
-    public void dfsTourOnAction(ActionEvent actionEvent) {
-        try {
-            String result = graph.dfs();
-            alert.setContentText("Recorrido DFS: " + result);
-            alert.showAndWait();
-        } catch (GraphException | StackException | ListException e) {
-            alert.setContentText("Error en recorrido DFS: " + e.getMessage());
-            alert.showAndWait();
-        }
+    public void dfsTourOnAction(ActionEvent actionEvent) throws GraphException, ListException, StackException {
+        alert.setContentText("DFS Tour: " + graph.dfs().substring(0, graph.dfs().length()-2));
+        alert.showAndWait();
     }
 
     @javafx.fxml.FXML
-    public void bfsTourOnAction(ActionEvent actionEvent) {
-        try {
-            String result = graph.bfs();
-            alert.setContentText("Recorrido BFS: " + result);
-            alert.showAndWait();
-        } catch (GraphException | QueueException | ListException e) {
-            alert.setContentText("Error en recorrido BFS: " + e.getMessage());
-            alert.showAndWait();
-        }
+    public void randomizeOnAction(ActionEvent actionEvent) throws GraphException, ListException {
+        graph = new AdjacencyMatrixGraph(10);
+        setGraph();
+        generateEdges();
+        displayGraph();
+        ta_toString.setVisible(false);
     }
 
     @javafx.fxml.FXML
-    public void containsVertex(ActionEvent actionEvent) {
-        dialog.setContentText("Ingrese el vértice a buscar:");
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(input -> {
-            try {
-                int vertex = Integer.parseInt(input.trim());
-                if (graph.containsVertex(vertex)) {
-                    alert.setContentText("El vértice [" + vertex + "] existe en el grafo.");
-                } else {
-                    alert.setContentText("El vértice [" + vertex + "] no existe en el grafo.");
-                }
-                alert.showAndWait();
-            } catch (NumberFormatException e) {
-                alert.setContentText("Entrada inválida. Ingrese un número entero.");
-                alert.showAndWait();
-            } catch (GraphException | ListException e) {
-                alert.setContentText("Error al verificar el vértice: " + e.getMessage());
-                alert.showAndWait();
-            }
-        });
+    public void bfsTourOnAction(ActionEvent actionEvent) throws GraphException, QueueException, ListException {
+        alert.setContentText("DFS Tour: " + graph.bfs().substring(0, graph.bfs().length()-2));
+        alert.showAndWait();
     }
 
     @javafx.fxml.FXML
     public void containsEdgeOnAction(ActionEvent actionEvent) {
-        dialog.setContentText("Ingrese la arista en formato A-B:");
+        dialog.setContentText("Type the edge to look in format: a-b (where a and b are numbers)");
         Optional<String> result = dialog.showAndWait();
-        result.ifPresent(input -> {
+
+        result.ifPresent(vertex ->{
             try {
-                String[] parts = input.trim().split("-");
-                if (parts.length != 2) {
-                    alert.setContentText("Formato incorrecto. Use el formato A-B.");
+                String[] elements = vertex.split("-");
+                Integer a = Integer.parseInt(elements[0].trim());
+                Integer b = Integer.parseInt(elements[1].trim());
+
+                if (graph.containsEdge(a, b)){
+                    alert.setContentText("The elements [" + a + ", " + b + "] have an edge");
                     alert.showAndWait();
-                    return;
-                }
-                int vertexA = Integer.parseInt(parts[0].trim());
-                int vertexB = Integer.parseInt(parts[1].trim());
-                if (graph.containsEdge(vertexA, vertexB)) {
-                    alert.setContentText("Existe una arista entre [" + vertexA + "] y [" + vertexB + "].");
                 } else {
-                    alert.setContentText("No existe una arista entre [" + vertexA + "] y [" + vertexB + "].");
+                    alert.setContentText("The elements [" + a + ", " + b + "] don't have an edge");
+                    alert.showAndWait();
                 }
+            } catch (Exception e) {
+                alert.setContentText("Please put this format: number-number (example: 13-54)");
                 alert.showAndWait();
-            } catch (NumberFormatException e) {
-                alert.setContentText("Entrada inválida. Ingrese números enteros en el formato A-B.");
-                alert.showAndWait();
-            } catch (GraphException | ListException e) {
-                alert.setContentText("Error al verificar la arista: " + e.getMessage());
+            }
+        });
+    }
+
+    @Deprecated
+    public void containsVertexOnAction(ActionEvent actionEvent) {
+        dialog.setContentText("Type the vertex (number) to look");
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(vertex ->{
+            try {
+                Integer v = Integer.parseInt(vertex.trim());
+                if (graph.containsVertex(v)){
+                    alert.setContentText("The element [" + v + "] exists in the graph");
+                    alert.showAndWait();
+                } else {
+                    alert.setContentText("The element [" + v + "] doesn't exist in the graph");
+                    alert.showAndWait();
+                }
+            } catch (Exception e) {
+                alert.setContentText("Please enter a valid integer between 0 and 99.");
                 alert.showAndWait();
             }
         });
     }
 
     @javafx.fxml.FXML
-    public void randomizeOnAction(ActionEvent actionEvent) {
-        randomizeGraph();
+    public void containsVertex(ActionEvent actionEvent) {
+        dialog.setContentText("Type the vertex (number) to look");
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(vertex ->{
+            try {
+                Integer v = Integer.parseInt(vertex.trim());
+                if (graph.containsVertex(v)){
+                    alert.setContentText("The element [" + v + "] exists in the graph");
+                    alert.showAndWait();
+                } else {
+                    alert.setContentText("The element [" + v + "] doesn't exist in the graph");
+                    alert.showAndWait();
+                }
+            } catch (Exception e) {
+                alert.setContentText("Please enter a valid integer between 0 and 99.");
+                alert.showAndWait();
+            }
+        });
     }
 }

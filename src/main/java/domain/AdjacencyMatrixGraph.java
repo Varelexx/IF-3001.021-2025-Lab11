@@ -217,6 +217,13 @@ public class AdjacencyMatrixGraph implements Graph {
         }//for i
         return -1;
     }
+    public Vertex getVertexByIndex(int i){
+        return vertexList[i];
+    }
+
+    public Object getWeightEdges(Object a, Object b){
+        return adjacencyMatrix[indexOf(a)][indexOf(b)];
+    }
 
     @Override
     public String toString() {

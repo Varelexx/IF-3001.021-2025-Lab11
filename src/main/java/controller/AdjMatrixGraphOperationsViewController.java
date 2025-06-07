@@ -7,148 +7,206 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
-import util.FXUtility;
 import util.Utility;
+import util.FXUtility;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 
-public class AdjMatrixGraphOperationsViewController {
-
+public class AdjMatrixGraphOperationsViewController
+{
     @javafx.fxml.FXML
     private Pane paneGraph;
     @javafx.fxml.FXML
     private TextArea ta_toString;
 
-    private AdjacencyMatrixGraph graph;
+    private ArrayList<Integer> numbers; // 10 números únicos
+    AdjacencyMatrixGraph graph;
     private Alert alert;
+    AdjMatrixGraphVisualization visualization;
 
     @javafx.fxml.FXML
-    public void initialize() {
-        alert = FXUtility.alert("Adjacency Matrix Operations", null);
-        graph = new AdjacencyMatrixGraph(30); // Capacidad máxima arbitraria
-        ta_toString.setText("Presione 'Randomize' para comenzar...");
+    public void initialize() throws GraphException, ListException {
+        graph = new AdjacencyMatrixGraph(10);
+        setGraph();
+        generateEdges();
+        displayGraph();
+        alert = FXUtility.alert("AdjMatrixGraph", null);
+        ta_toString.setVisible(true);
+        ta_toString.setText(graph.toString());
+    }
+
+    // 10 números aleatorios y únicos
+    private void setGraph() throws GraphException, ListException {
+        numbers = new ArrayList<>();
+        ArrayList<Integer> pool = new ArrayList<>();
+        for (int i = 0; i < 100; i++) pool.add(i);
+        Collections.shuffle(pool);
+        for (int i = 0; i < 10; i++) {
+            int num = pool.get(i);
+            numbers.add(num);
+            graph.addVertex(num);
+        }
+    }
+
+    private void displayGraph() throws ListException, GraphException {
+        paneGraph.getChildren().clear();
+        visualization = new AdjMatrixGraphVisualization(graph);
+        visualization.displayGraph();
+        paneGraph.getChildren().add(visualization);
+    }
+
+    private void generateEdges() throws GraphException, ListException {
+        int countEdges = 0;
+        int n = numbers.size();
+        while (countEdges < 15){
+            int idxA = Utility.random(n) - 1;
+            int idxB = Utility.random(n) - 1;
+            Object a = numbers.get(idxA);
+            Object b = numbers.get(idxB);
+
+            if (!a.equals(b) && !graph.containsEdge(a, b)){
+                int weight = Utility.random(50);
+                if (weight == 0) weight = 1;
+                graph.addEdgeWeight(a, b, weight);
+                countEdges++;
+            }
+        }
+    }
+
+    @javafx.fxml.FXML
+    public void randomizeOnAction(ActionEvent actionEvent) throws GraphException, ListException {
+        graph = new AdjacencyMatrixGraph(10);
+        setGraph();
+        generateEdges();
+        displayGraph();
+        ta_toString.setVisible(true);
+        ta_toString.setText(graph.toString());
     }
 
     @javafx.fxml.FXML
     public void clearOnAction(ActionEvent actionEvent) {
-        graph = new AdjacencyMatrixGraph(30); // Reinicia el grafo
-        ta_toString.clear();
-        ta_toString.setText("Grafo limpiado.");
+        graph.clear();
+        ta_toString.setVisible(false);
+        ta_toString.setText("");
+        paneGraph.getChildren().clear();
     }
 
     @javafx.fxml.FXML
-    public void addVertexOnAction(ActionEvent actionEvent) {
-        try {
-            int newVertex;
-            do {
-                newVertex = Utility.random(100);
-            } while (graph.containsVertex(newVertex));
-            graph.addVertex(newVertex);
-            ta_toString.setText("Vértice agregado: " + newVertex + "\n" + graph.toString());
-        } catch (GraphException | ListException e) {
-            alert.setContentText("Error al agregar vértice: " + e.getMessage());
+    public void addVertexOnAction(ActionEvent actionEvent) throws ListException, GraphException {
+        if (graph.isEmpty()){
+            int newNum = getUnusedRandomNumber();
+            numbers.add(newNum);
+            graph.addVertex(newNum);
+            displayGraph();
+            ta_toString.setVisible(true);
+            ta_toString.setText(graph.toString());
+        } else if (graph.size() == 10) {
+            alert.setContentText("The graph is full");
             alert.showAndWait();
-        }
-    }
-
-    @javafx.fxml.FXML
-    public void removeVertexOnAction(ActionEvent actionEvent) {
-        try {
-            Object vertex = graph.containsVertex(Utility.random(graph.size()));
-            graph.removeVertex(vertex);
-            ta_toString.setText("Vértice eliminado: " + vertex + "\n" + graph.toString());
-        } catch (GraphException | ListException e) {
-            alert.setContentText("Error al eliminar vértice: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
-
-    @javafx.fxml.FXML
-    public void addEdgesWeightOnAction(ActionEvent actionEvent) {
-        try {
-            int n = graph.size();
-            if (n < 2) return;
-
-            Object[] vertices = new Object[n];
-            for (int i = 0; i < n; i++) {
-                vertices[i] = graph.containsVertex(i);
-            }
-
-            // Agregar 5 aristas aleatorias
-            for (int i = 0; i < 5; i++) {
-                int a = Utility.random(n);
-                int b;
-                do {
-                    b = Utility.random(n);
-                } while (a == b || graph.containsEdge(vertices[a], vertices[b]));
-
-                int weight = Utility.random(50) + 1;
-                graph.addEdgeWeight(vertices[a], vertices[b], weight);
-            }
-            ta_toString.setText("Se agregaron aristas aleatorias.\n" + graph.toString());
-        } catch (GraphException | ListException e) {
-            alert.setContentText("Error al agregar aristas: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
-
-    @javafx.fxml.FXML
-    public void removeEdgesWeightOnAction(ActionEvent actionEvent) {
-        try {
-            int n = graph.size();
-            if (n < 2) return;
-
-            Object[] vertices = new Object[n];
-            for (int i = 0; i < n; i++) {
-                vertices[i] = graph.containsVertex(i);
-            }
-
-            // Eliminar hasta 3 aristas aleatorias existentes
-            int removed = 0;
-            for (int i = 0; i < n && removed < 3; i++) {
-                for (int j = 0; j < n && removed < 3; j++) {
-                    if (i != j && graph.containsEdge(vertices[i], vertices[j])) {
-                        graph.removeEdge(vertices[i], vertices[j]);
-                        removed++;
-                    }
+        } else {
+            boolean added = false;
+            while (!added) {
+                int newNum = getUnusedRandomNumber();
+                if (!graph.containsVertex(newNum)) {
+                    numbers.add(newNum);
+                    graph.addVertex(newNum);
+                    added = true;
                 }
             }
-            ta_toString.setText("Se eliminaron aristas aleatorias.\n" + graph.toString());
-        } catch (GraphException | ListException e) {
-            alert.setContentText("Error al eliminar aristas: " + e.getMessage());
-            alert.showAndWait();
+            displayGraph();
+            ta_toString.setVisible(true);
+            ta_toString.setText(graph.toString());
         }
     }
 
     @javafx.fxml.FXML
-    public void randomizeOnAction(ActionEvent actionEvent) {
-        try {
-            graph = new AdjacencyMatrixGraph(30);
-            Set<Integer> unique = new HashSet<>();
-            while (unique.size() < 10) {
-                unique.add(Utility.random(100));
-            }
-            for (Integer value : unique) {
-                graph.addVertex(value);
-            }
-
-            Object[] vertices = unique.toArray();
-            for (int i = 0; i < 15; i++) {
-                int a = Utility.random(vertices.length);
-                int b;
-                do {
-                    b = Utility.random(vertices.length);
-                } while (a == b);
-                int weight = Utility.random(50) + 1;
-                graph.addEdgeWeight(vertices[a], vertices[b], weight);
-            }
-
-            ta_toString.setText("Grafo aleatorio generado.\n" + graph.toString());
-        } catch (GraphException | ListException e) {
-            alert.setContentText("Error al randomizar grafo: " + e.getMessage());
+    public void removeVertexOnAction(ActionEvent actionEvent) throws ListException, GraphException {
+        if (graph.isEmpty()) {
+            alert.setContentText("Can't remove more vertex \nbecause graph is empty");
             alert.showAndWait();
+        } else if (graph.size() == 1) {
+            graph.clear();
+            numbers.clear();
+            ta_toString.setVisible(false);
+            ta_toString.setText("");
+            paneGraph.getChildren().clear();
+            alert.setContentText("Can't remove more vertex \nbecause graph is empty");
+            alert.showAndWait();
+        } else {
+            boolean removed = false;
+            while (!removed) {
+                int idx = Utility.random(numbers.size()) - 1;
+                int num = numbers.get(idx);
+                if (graph.containsVertex(num)) {
+                    graph.removeVertex(num);
+                    numbers.remove(Integer.valueOf(num));
+                    removed = true;
+                }
+            }
+            displayGraph();
+            ta_toString.setText(graph.toString());
         }
     }
 
+    @javafx.fxml.FXML
+    public void removeEdgesWeightOnAction(ActionEvent actionEvent) throws ListException, GraphException {
+        if (graph.isEmpty()) {
+            alert.setContentText("Can't remove more edges \nbecause graph is empty");
+            alert.showAndWait();
+        } else if (graph.size() == 1) {
+            alert.setContentText("Can't remove more edges \nbecause there is only one vertex");
+            alert.showAndWait();
+        } else {
+            boolean removed = false;
+            while (!removed) {
+                int idxA = Utility.random(numbers.size()) - 1;
+                int idxB = Utility.random(numbers.size()) - 1;
+                Object a = numbers.get(idxA);
+                Object b = numbers.get(idxB);
+                if (graph.containsEdge(a,b)) {
+                    graph.removeEdge(a, b);
+                    removed = true;
+                }
+            }
+            displayGraph();
+            ta_toString.setText(graph.toString());
+        }
+    }
+
+    @javafx.fxml.FXML
+    public void addEdgesWeightOnAction(ActionEvent actionEvent) throws ListException, GraphException {
+        if (graph.isEmpty()){
+            alert.setContentText("Can't add edges and weight because the graph is empty");
+            alert.showAndWait();
+        } else if (graph.size() == 1) {
+            alert.setContentText("Can't add more edges \nbecause there is only one vertex");
+            alert.showAndWait();
+        } else {
+            boolean added = false;
+            while (!added) {
+                int idxA = Utility.random(numbers.size()) - 1;
+                int idxB = Utility.random(numbers.size()) - 1;
+                Object a = numbers.get(idxA);
+                Object b = numbers.get(idxB);
+                if (!graph.containsEdge(a,b) && !a.equals(b)) {
+                    int weight = Utility.random(50);
+                    if (weight == 0) weight = 1;
+                    graph.addEdgeWeight(a, b, weight);
+                    added = true;
+                }
+            }
+            displayGraph();
+            ta_toString.setText(graph.toString());
+        }
+    }
+
+    // Auxiliar para obtener número aleatorio no repetido para nuevo vértice
+    private int getUnusedRandomNumber() {
+        ArrayList<Integer> pool = new ArrayList<>();
+        for (int i = 0; i < 100; i++) pool.add(i);
+        pool.removeAll(numbers);
+        Collections.shuffle(pool);
+        return pool.get(0);
+    }
 }

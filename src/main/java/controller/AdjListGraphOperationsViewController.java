@@ -67,7 +67,7 @@ public class AdjListGraphOperationsViewController
             Object b = graph.getVertexByIndex(Utility.random(graph.size())-1).data;
 
             if (!a.equals(b) && !graph.containsEdge(a, b)){
-                int weight = Utility.random(200) + 200;
+                int weight = Utility.random(49) + 1;
                 graph.addEdgeWeight(a, b, weight);
                 countEdges++;
             }
