@@ -26,7 +26,7 @@ public class Utility {
     }
 
     public static int random(int bound) {
-        return new Random().nextInt(bound);
+        return new Random().nextInt(bound)+1;
     }
 
     public static int compare(Object a, Object b) {
