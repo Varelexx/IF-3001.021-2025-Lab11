@@ -26,7 +26,7 @@ public class FXUtility {
         myalert.setTitle(title);
         myalert.setHeaderText(headerText);
         DialogPane dialogPane = myalert.getDialogPane();
-        String css = HelloApplication.class.getResource("ucr/lab/dialog.css").toExternalForm();
+        String css = HelloApplication.class.getResource("dialog.css").toExternalForm();
         dialogPane.getStylesheets().add(css);
         dialogPane.getStyleClass().add("myDialog");
         return myalert;
@@ -36,8 +36,8 @@ public class FXUtility {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(title);
         dialog.setHeaderText(headerText);
-        //String css = HelloApplication.class.getResource("moderna.css").toExternalForm();
-        //dialog.getEditor().getStylesheets().add(css);
+        String css = HelloApplication.class.getResource("dialog.css").toExternalForm();
+        dialog.getEditor().getStylesheets().add(css);
         return dialog;
     }
 

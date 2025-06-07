@@ -148,7 +148,30 @@ public class AdjListGraphOperationsViewController
     }
 
     @javafx.fxml.FXML
-    public void addEdgesAndWeightsOnAction(ActionEvent actionEvent) throws GraphException, ListException {
+    public void removeEdgesWeightOnAction(ActionEvent actionEvent) throws ListException, GraphException {
+        if (graph.isEmpty()) {
+            alert.setContentText("Can't remove more edges \nbecause graph is empty");
+            alert.showAndWait();
+        } else if (graph.size() == 1) {
+            alert.setContentText("Can't remove more edges \nbecause there is only one vertex");
+            alert.showAndWait();
+        } else {
+            boolean removed = false;
+            while (!removed) {
+                Object a = graph.getVertexByIndex(Utility.random(graph.size())-1).data;
+                Object b = graph.getVertexByIndex(Utility.random(graph.size())-1).data;
+                if (graph.containsEdge(a,b)) {
+                    graph.removeEdge(a, b);
+                    removed = true;
+                }
+            }
+            displayGraph();
+            ta_toString.setText(graph.toString());
+        }
+    }
+
+    @javafx.fxml.FXML
+    public void addEdgesWeightOnAction(ActionEvent actionEvent) throws ListException, GraphException {
         if (graph.isEmpty()){
             alert.setContentText("Can't add edges and weight because the graph is empty");
             alert.showAndWait();
@@ -164,29 +187,6 @@ public class AdjListGraphOperationsViewController
                     int weight = Utility.random(200) + 200;
                     graph.addEdgeWeight(a, b, weight);
                     added = true;
-                }
-            }
-            displayGraph();
-            ta_toString.setText(graph.toString());
-        }
-    }
-
-    @javafx.fxml.FXML
-    public void RemoveEdgesAndWeightsOnAction(ActionEvent actionEvent) throws ListException, GraphException {
-        if (graph.isEmpty()) {
-            alert.setContentText("Can't remove more edges \nbecause graph is empty");
-            alert.showAndWait();
-        } else if (graph.size() == 1) {
-            alert.setContentText("Can't remove more edges \nbecause there is only one vertex");
-            alert.showAndWait();
-        } else {
-            boolean removed = false;
-            while (!removed) {
-                Object a = graph.getVertexByIndex(Utility.random(graph.size())-1).data;
-                Object b = graph.getVertexByIndex(Utility.random(graph.size())-1).data;
-                if (graph.containsEdge(a,b)) {
-                    graph.removeEdge(a, b);
-                    removed = true;
                 }
             }
             displayGraph();
